@@ -45,16 +45,20 @@ while ($result = $statement->fetch()) {
         continue;
     }
 
-    // Get external file
-    $imgFile = file_get_contents((string) $matches['url'][0]);
-    $fileName = pathinfo($matches['url'][0], PATHINFO_FILENAME).'.'.pathinfo($matches['url'][0], PATHINFO_EXTENSION);
-    $storedFile = date('Y-m-d',time()).'/'.$fileName;
-    file_put_contents(IMAGE_STORAGE_PATH.$storedFile, $imgFile);
+    $i = 0;
+    foreach ($matches['url'] as $match) {
+        // Get external file
+        $imgFile = file_get_contents((string) $match);
+        $fileName = pathinfo($match, PATHINFO_FILENAME).'.'.pathinfo($match, PATHINFO_EXTENSION);
+        $storedFile = date('Y-m-d',time()).'/'.$fileName;
+        file_put_contents(IMAGE_STORAGE_PATH.$storedFile, $imgFile);
 
-    $newMessage = str_replace($matches['wholestring'], "[img]".$storedFile."[/img]", $result->message);
+        $result->message = str_replace($matches['wholestring'][$i], "[img]".$storedFile."[/img]", $result->message);
+        ++$i;
+    }
 
     $query = $link->prepare("UPDATE ". DB_PREFIX ."posts SET message = :message WHERE pid = :pid");
-    $query->bindParam(':message', $newMessage);
+    $query->bindParam(':message', $result->message);
     $query->bindParam(':pid', (int) $result->pid);
     $query->execute();
 
