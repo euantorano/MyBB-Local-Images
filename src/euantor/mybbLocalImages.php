@@ -17,12 +17,12 @@ define('DB_USER_PASS', '');
 define('DB_PREFIX', 'mybb_');
 
 // Change this to reflect the base of your MyBB install. By default, this file is expected to be in the ./inc/ directory
-define('IMAGE_STORAGE_PATH', './storage/');
+define('IMAGE_STORAGE_PATH', '../images/auto-uploads/');
 
 // Stop editing past here
 $link = null;
 try {
-  $link = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER_NAME, DB_USER_PASS);
+  $link = new PDO('mysql:host='. DB_HOST .';dbname='.DB_NAME, DB_USER_NAME, DB_USER_PASS);
 }
 catch(PDOException $e) {
     die($e->getMessage());
