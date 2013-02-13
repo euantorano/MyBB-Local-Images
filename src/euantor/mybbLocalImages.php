@@ -11,13 +11,18 @@
 
 // Change these lines to suit your database connection
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'mybb');
-define('DB_USER_NAME', 'root');
+define('DB_NAME', '');
+define('DB_USER_NAME', '');
 define('DB_USER_PASS', '');
 define('DB_PREFIX', 'mybb_');
 
 // Change this to reflect the base of your MyBB install. By default, this file is expected to be in the ./inc/ directory
-define('IMAGE_STORAGE_PATH', '../images/auto-uploads/');
+define('IMAGE_STORAGE_PATH', '/var/www/mybb1609/images/auto_uploads/'); // Direct path to uplaod folder - default example provided
+define('BASE_URL', 'http://localhost/mybb1609/'); // Base URL, with ending slash - example provided
+define('IMAGE_STORED_URL', BASE_URL.'images/auto_uploads/'); // The URL the image will be located at
+
+// Default timezone is UTC. Not too much point changing unless you really want to
+date_default_timezone_set('UTC');
 
 // Stop editing past here
 $link = null;
@@ -47,19 +52,30 @@ while ($result = $statement->fetch()) {
 
     $i = 0;
     foreach ($matches['url'] as $match) {
+    	// Do not run for local images
+    	$length_url = strlen(BASE_URL);
+    	if (substr($match, 0, $length_url) == BASE_URL) {
+    		continue;
+    	}
+
         // Get external file
         $imgFile = file_get_contents((string) $match);
-        $fileName = pathinfo($match, PATHINFO_FILENAME).'.'.pathinfo($match, PATHINFO_EXTENSION);
+        $fileName = pathinfo($match, PATHINFO_FILENAME).'-'.time().'.'.pathinfo($match, PATHINFO_EXTENSION);
+        if (!is_dir(IMAGE_STORAGE_PATH.date('Y-m-d',time()))) {
+        	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d',time()), 0700, true)) {
+        		die('Could not create directory');
+        	}
+        }
         $storedFile = date('Y-m-d',time()).'/'.$fileName;
         file_put_contents(IMAGE_STORAGE_PATH.$storedFile, $imgFile);
 
-        $result->message = str_replace($matches['wholestring'][$i], "[img]".$storedFile."[/img]", $result->message);
+        $result->message = str_replace($matches['wholestring'][$i], "[img]".IMAGE_STORED_URL.$storedFile."[/img]", $result->message);
         ++$i;
     }
 
     $query = $link->prepare("UPDATE ". DB_PREFIX ."posts SET message = :message WHERE pid = :pid");
     $query->bindParam(':message', $result->message);
-    $query->bindParam(':pid', (int) $result->pid);
+    $query->bindParam(':pid', $result->pid);
     $query->execute();
 
     ++$recordsAffected;
