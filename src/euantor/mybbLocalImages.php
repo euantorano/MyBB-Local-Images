@@ -69,7 +69,7 @@ while ($result = $statement->fetch()) {
         $storedFile = date('Y-m-d',time()).'/'.$fileName;
         file_put_contents(IMAGE_STORAGE_PATH.$storedFile, $imgFile);
 
-        $result->message = str_replace($matches['wholestring'][$i], "[img]".IMAGE_STORED_URL.$storedFile."[/img]", $result->message);
+        $result->message = str_replace($matches['wholestring'][$i], "[img]".IMAGE_STORED_URL.$storedFile."[/img]\n[b]Source:[/b] {$match}", $result->message);
         ++$i;
     }
 
