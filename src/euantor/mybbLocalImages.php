@@ -108,7 +108,7 @@ function checkImageFile($imgPath)
     $img = getimagesize($imgPath);
     $imageType = $img[2];
 
-    if (in_array($imageType , array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+    if (in_array($imageType, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
         return true;
     }
     return false;
