@@ -68,8 +68,8 @@ while ($result = $statement->fetch()) {
         }
 
         $fileName = pathinfo($match, PATHINFO_FILENAME).'-'.time().'.'.pathinfo($match, PATHINFO_EXTENSION);
-        if (!is_dir(IMAGE_STORAGE_PATH.date('Y-m-d',time()))) {
-        	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d',time()), 0777, true)) {
+        if (!is_dir(IMAGE_STORAGE_PATH.date('Y-m-d', time()))) {
+        	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d', time()), 0777, true)) {
         		die('Could not create directory');
         	}
         }
@@ -105,7 +105,7 @@ $link = null;
  */
 function checkImageFile($imgPath)
 {
-    $img = getimagesize($path);
+    $img = getimagesize($imgPath);
     $imageType = $img[2];
 
     if (in_array($imageType , array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
