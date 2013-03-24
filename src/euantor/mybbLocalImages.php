@@ -16,6 +16,8 @@ define('DB_USER_NAME', '');
 define('DB_USER_PASS', '');
 define('DB_PREFIX', 'mybb_');
 
+define('INCLUDE_SRC', true); // Change this to false if you do not want to add the original source of the image
+
 // Change this to reflect the base of your MyBB install. By default, this file is expected to be in the ./inc/ directory
 define('IMAGE_STORAGE_PATH', '/var/www/mybb1609/images/auto_uploads/'); // Direct path to uplaod folder - default example provided
 define('BASE_URL', 'http://localhost/mybb1609/'); // Base URL, with ending slash - example provided
@@ -60,6 +62,11 @@ while ($result = $statement->fetch()) {
 
         // Get external file
         $imgFile = file_get_contents((string) $match);
+
+        if (!checkImageFile($imgFile)) {
+            continue;
+        }
+
         $fileName = pathinfo($match, PATHINFO_FILENAME).'-'.time().'.'.pathinfo($match, PATHINFO_EXTENSION);
         if (!is_dir(IMAGE_STORAGE_PATH.date('Y-m-d',time()))) {
         	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d',time()), 0700, true)) {
@@ -69,7 +76,12 @@ while ($result = $statement->fetch()) {
         $storedFile = date('Y-m-d',time()).'/'.$fileName;
         file_put_contents(IMAGE_STORAGE_PATH.$storedFile, $imgFile);
 
-        $result->message = str_replace($matches['wholestring'][$i], "[img]".IMAGE_STORED_URL.$storedFile."[/img]\n[b]Source:[/b] {$match}", $result->message);
+        $sourceString = '';
+        if ((boolean) INCLUDE_SRC) {
+            $sourceString = "\n[i][b]Source:[/b] {$match}[/i]";
+        }
+
+        $result->message = str_replace($matches['wholestring'][$i], "[img]".IMAGE_STORED_URL.$storedFile."[/img]{$sourceString}", $result->message);
         ++$i;
     }
 
@@ -84,3 +96,20 @@ while ($result = $statement->fetch()) {
 echo 'Affected record count: '.$recordsAffected;
 
 $link = null;
+
+/**
+ * Check if a file is an image or not.
+ *
+ * @param string $path The path to the file.
+ * @return boolean Whether the file is an image.
+ */
+function checkImageFile($imgPath)
+{
+    $img = getimagesize($path);
+    $imageType = $img[2];
+
+    if (in_array($imageType , array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP))) {
+        return true;
+    }
+    return false;
+}
