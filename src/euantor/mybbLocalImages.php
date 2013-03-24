@@ -69,7 +69,7 @@ while ($result = $statement->fetch()) {
 
         $fileName = pathinfo($match, PATHINFO_FILENAME).'-'.time().'.'.pathinfo($match, PATHINFO_EXTENSION);
         if (!is_dir(IMAGE_STORAGE_PATH.date('Y-m-d',time()))) {
-        	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d',time()), 0700, true)) {
+        	if (!mkdir(IMAGE_STORAGE_PATH.date('Y-m-d',time()), 0777, true)) {
         		die('Could not create directory');
         	}
         }
